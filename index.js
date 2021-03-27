@@ -1,29 +1,17 @@
+#! /usr/bin/env node
+
 'use strict'
 
 const autocannon = require('autocannon')
 const compare = require('autocannon-compare')
+const Ajv = require("ajv").default
+const yaml = require('js-yaml')
 const fs = require('fs')
+const ajv = new Ajv()
 
-const requestConfig = [
-  {
-    name: 'request 1',
-    url: 'http://localhost:3000/',
-    connections: 10,
-    duration: 10,
-    pipelining: 1,
-  },
-  {
-    name: 'request 2',
-    url: 'http://localhost:3000/slow',
-    connections: 10,
-    duration: 10,
-    pipelining: 1,
-  }
-]
-
-function runBench(config) {
+function runBench(autocannonParams) {
   return new Promise((resolve, reject) => {
-    autocannon(config, (err, results) => {
+    autocannon(autocannonParams, (err, results) => {
       if (err) {
         reject(err)
       } else {
@@ -33,9 +21,9 @@ function runBench(config) {
   })
 }
 
-function getPreviousBenchmark(name) {
+function getPreviousBenchmark(benchFolder, name) {
   try {
-    const previous = require(`./bench/${name}.json`)
+    const previous = require(`${benchFolder}/${name}.json`)
     return previous
   } catch (e) {
     return undefined
@@ -46,9 +34,9 @@ function normalizeBenchmarkName(name) {
   return name.replace(/ /g, '-')
 }
 
-function compareResults(results) {
+function compareResults(results, benchFolder) {
   for (const [key, value] of results.entries()) {
-    const previousBench = getPreviousBenchmark(key)
+    const previousBench = getPreviousBenchmark(benchFolder, key)
     if (previousBench) {
       const comparissonResult = compare(previousBench, value)
       console.info(`Comparisson: ${key}`, comparissonResult)
@@ -58,13 +46,71 @@ function compareResults(results) {
   }
 }
 
-function storeResults(results) {
+function storeResults(results, benchFolder) {
   for (const [key, value] of results.entries()) {
-    fs.writeFileSync(`./bench/${key}.json`, JSON.stringify(value, null, 4))
+    fs.writeFileSync(`${benchFolder}/${key}.json`, JSON.stringify(value, null, 4))
   }
 }
 
-async function main(configs) {
+function validateConfig(cfg) {
+  const validate = ajv.compile({
+    type: 'object',
+    properties: {
+      name: {
+        type: 'string',
+      },
+      url: {
+        type: 'string',
+      },
+      benchFolder: {
+        type: 'string',
+      },
+      benchmarks: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            name: {
+              type: 'string'
+            },
+            path: {
+              type: 'string'
+            },
+          },
+          required: ['name', 'path']
+        }
+      }
+    },
+    required: ['name', 'benchmarks', 'benchFolder']
+  })
+
+  if (validate(cfg)) {
+    return cfg
+  } else {
+    console.error('The autobench config file has errors', validate.errors)
+    process.exit(1)
+  }
+}
+
+function parseConfig() {
+  try {
+    const cfg = yaml.load(fs.readFileSync('./autobench.yml'))
+    if (!cfg.url) {
+      if (!process.env.AUTOBENCH_URL) {
+        console.error('URL not provided. You should provide the `url` in autobench config or by AUTOBENCH_URL env variable.')
+        process.exit(1)
+      }
+    }
+
+    validateConfig(cfg)
+    return cfg
+  } catch (e) {
+    console.error('Not found `autobench.yml` file.')
+    process.exit(1)
+  }
+}
+
+async function main() {
   const args = process.argv.slice(2)
 
   if (args.length !== 1) {
@@ -77,21 +123,27 @@ async function main(configs) {
     process.exit(1)
   }
 
+  const config = parseConfig()
   const results = new Map()
-  for (let instanceCfg of configs) {
-    const result = await runBench(instanceCfg)
+  for (let instanceCfg of config.benchmarks) {
+    const result = await runBench({
+      url: config.url + instanceCfg.path,
+      connections: 10,
+      pipelining: 1,
+      duration: 10
+    })
     results.set(normalizeBenchmarkName(instanceCfg.name), result)
   }
 
   if (args[0] === 'create') {
-    storeResults(results)
+    storeResults(results, config.benchFolder)
   }
 
   if (args[0] === 'compare') {
-    compareResults(results)
+    compareResults(results, config.benchFolder)
   }
 
   console.info('Done!')
 }
 
-main(requestConfig)
+main()
