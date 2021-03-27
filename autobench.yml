@@ -1,0 +1,9 @@
+name: 'Autobench Example'
+benchFolder: './bench'
+url: 'http://localhost:3000'
+benchmarks:
+  - name: 'request 1'
+    path: '/'
+
+  - name: 'request 2'
+    path: '/slow'
