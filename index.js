@@ -8,6 +8,7 @@ const Ajv = require("ajv").default
 const yaml = require('js-yaml')
 const fs = require('fs')
 const log = require('./logger')
+const { MarkdownReview } = require('./markdown-review')
 
 const ajv = new Ajv()
 
@@ -37,11 +38,17 @@ function normalizeBenchmarkName(name) {
 }
 
 function compareResults(results, benchFolder) {
+  const review = new MarkdownReview()
+
   for (const [key, value] of results.entries()) {
     const previousBench = getPreviousBenchmark(benchFolder, key)
     if (previousBench) {
-      const comparissonResult = compare(previousBench, value)
-      log.logInfo(`Comparisson: ${key}`, comparissonResult)
+      const result = compare(previousBench, value)
+      if (result.aWins) {
+        review.addRequestChanges(result)
+      }
+
+      log.logDebug(`${key} new benchmark overall is ${result.equal ? 'equal' : result.aWins ? 'worst' : 'better'} to previous.`)
     } else {
       log.logInfo(`${key} doesn't has a previous benchmark to compare. Skipping.`)
     }
