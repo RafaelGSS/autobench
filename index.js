@@ -7,6 +7,8 @@ const compare = require('autocannon-compare')
 const Ajv = require("ajv").default
 const yaml = require('js-yaml')
 const fs = require('fs')
+const log = require('./logger')
+
 const ajv = new Ajv()
 
 function runBench(autocannonParams) {
@@ -39,14 +41,19 @@ function compareResults(results, benchFolder) {
     const previousBench = getPreviousBenchmark(benchFolder, key)
     if (previousBench) {
       const comparissonResult = compare(previousBench, value)
-      console.info(`Comparisson: ${key}`, comparissonResult)
+      log.logInfo(`Comparisson: ${key}`, comparissonResult)
     } else {
-      console.info(`${key} doesn't has a previous benchmark to compare. Skipping.`)
+      log.logInfo(`${key} doesn't has a previous benchmark to compare. Skipping.`)
     }
   }
 }
 
 function storeResults(results, benchFolder) {
+  if (!fs.existsSync(benchFolder)) {
+    log.logDebug(`Creating benchmark folder: '${benchFolder}'`)
+    fs.mkdirSync(benchFolder)
+  }
+
   for (const [key, value] of results.entries()) {
     fs.writeFileSync(`${benchFolder}/${key}.json`, JSON.stringify(value, null, 4))
   }
@@ -87,7 +94,7 @@ function validateConfig(cfg) {
   if (validate(cfg)) {
     return cfg
   } else {
-    console.error('The autobench config file has errors', validate.errors)
+    log.logError('The autobench config file has errors', validate.errors)
     process.exit(1)
   }
 }
@@ -97,7 +104,7 @@ function parseConfig() {
     const cfg = yaml.load(fs.readFileSync('./autobench.yml'))
     if (!cfg.url) {
       if (!process.env.AUTOBENCH_URL) {
-        console.error('URL not provided. You should provide the `url` in autobench config or by AUTOBENCH_URL env variable.')
+        log.logError('URL not provided. You should provide the `url` in autobench config or by AUTOBENCH_URL env variable.')
         process.exit(1)
       }
     }
@@ -105,7 +112,7 @@ function parseConfig() {
     validateConfig(cfg)
     return cfg
   } catch (e) {
-    console.error('Not found `autobench.yml` file.')
+    log.logError('Not found `autobench.yml` file.')
     process.exit(1)
   }
 }
@@ -115,12 +122,12 @@ async function main() {
 
   if (args.length !== 1) {
     console.error('Usage: autobench [compare | create]')
-    process.exit(1)
+    process.exit(127)
   }
 
   if (args[0] !== 'create' && args[0] !== 'compare') {
     console.error(`Option ${args[0]} not recognized!`)
-    process.exit(1)
+    process.exit(127)
   }
 
   const config = parseConfig()
@@ -143,7 +150,7 @@ async function main() {
     compareResults(results, config.benchFolder)
   }
 
-  console.info('Done!')
+  log.logInfo('Done!')
 }
 
 main()
