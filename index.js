@@ -45,7 +45,7 @@ function compareResults(results, benchFolder) {
     if (previousBench) {
       const result = compare(previousBench, value)
       if (result.aWins) {
-        review.addRequestChanges(result)
+        review.addRequestChanges(key, result)
       }
 
       log.logDebug(`${key} new benchmark overall is ${result.equal ? 'equal' : result.aWins ? 'worst' : 'better'} to previous.`)
@@ -53,6 +53,8 @@ function compareResults(results, benchFolder) {
       log.logInfo(`${key} doesn't has a previous benchmark to compare. Skipping.`)
     }
   }
+
+  return review
 }
 
 function storeResults(results, benchFolder) {
@@ -63,6 +65,14 @@ function storeResults(results, benchFolder) {
 
   for (const [key, value] of results.entries()) {
     fs.writeFileSync(`${benchFolder}/${key}.json`, JSON.stringify(value, null, 4))
+  }
+}
+
+function storeReview(review) {
+  if (review.hasReview()) {
+    fs.writeFileSync('./autobench-review.md', review.reviewMessage)
+  } else {
+    log.logInfo('Empty review.')
   }
 }
 
@@ -150,11 +160,12 @@ async function main() {
   }
 
   if (args[0] === 'create') {
-    storeResults(results, config.benchFolder)
+    storeResults(results, `${process.cwd()}/${config.benchFolder}`)
   }
 
   if (args[0] === 'compare') {
-    compareResults(results, config.benchFolder)
+    const review = compareResults(results, `${process.cwd()}/${config.benchFolder}`)
+    storeReview(review)
   }
 
   log.logInfo('Done!')
