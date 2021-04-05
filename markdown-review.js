@@ -1,9 +1,9 @@
 class MarkdownReview {
-  constructor() {
-    this.reviewMessage = '';
+  constructor () {
+    this.reviewMessage = ''
   }
 
-  addRequestChanges(route, output) {
+  addRequestChanges (route, output) {
     if (this.reviewMessage === '') {
       this.initRequestChangesMessage()
     }
@@ -19,11 +19,11 @@ The previous benchmark for ${route} was significantly performatic than from this
 `
   }
 
-  initRequestChangesMessage() {
+  initRequestChangesMessage () {
     this.reviewMessage = '## Performance Regression ⚠️\n'
   }
 
-  hasReview() {
+  hasReview () {
     return this.reviewMessage !== ''
   }
 }
