@@ -7,5 +7,5 @@ const logError = debug('autobench:error')
 module.exports = {
   logDebug,
   logInfo,
-  logError,
+  logError
 }

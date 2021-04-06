@@ -1,10 +1,14 @@
 {
   "name": "autobench",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "bin": {
     "autobench": "./index.js"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "repository": {
     "type": "git",
@@ -21,5 +25,12 @@
     "autocannon-compare": "^0.4.0",
     "debug": "^4.3.1",
     "js-yaml": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.23.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.3.1"
   }
 }

@@ -1,29 +1,29 @@
 class MarkdownReview {
-  constructor() {
-    this.reviewMessage = '';
+  constructor () {
+    this.reviewMessage = ''
   }
 
-  addRequestChanges(route, output) {
+  addRequestChanges (route, output) {
     if (this.reviewMessage === '') {
       this.initRequestChangesMessage()
     }
 
     this.reviewMessage += `
-      ---
-      The previous benchmark for ${route} was significantly performatic than from this PR.
+---
+The previous benchmark for ${route} was significantly performatic than from this PR.
 
-      - **Router**: ${route}
-      - **Requests Diff**: ${output.requests.difference}
-      - **Throughput Diff**: ${output.throughput.difference}
-      - **Latency Diff**: ${output.latency.difference}
-    `
+- **Router**: ${route}
+- **Requests Diff**: ${output.requests.difference}
+- **Throughput Diff**: ${output.throughput.difference}
+- **Latency Diff**: ${output.latency.difference}
+`
   }
 
-  initRequestChangesMessage() {
-    this.reviewMessage = '## Performance Regression :alert:\n'
+  initRequestChangesMessage () {
+    this.reviewMessage = '## Performance Regression ⚠️\n'
   }
 
-  hasReview() {
+  hasReview () {
     return this.reviewMessage !== ''
   }
 }

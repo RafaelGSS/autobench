@@ -4,7 +4,7 @@
 
 const autocannon = require('autocannon')
 const compare = require('autocannon-compare')
-const Ajv = require("ajv").default
+const Ajv = require('ajv').default
 const yaml = require('js-yaml')
 const fs = require('fs')
 const log = require('./logger')
@@ -12,7 +12,7 @@ const { MarkdownReview } = require('./markdown-review')
 
 const ajv = new Ajv()
 
-function runBench(autocannonParams) {
+function runBench (autocannonParams) {
   return new Promise((resolve, reject) => {
     autocannon(autocannonParams, (err, results) => {
       if (err) {
@@ -24,7 +24,7 @@ function runBench(autocannonParams) {
   })
 }
 
-function getPreviousBenchmark(benchFolder, name) {
+function getPreviousBenchmark (benchFolder, name) {
   try {
     const previous = require(`${benchFolder}/${name}.json`)
     return previous
@@ -33,11 +33,11 @@ function getPreviousBenchmark(benchFolder, name) {
   }
 }
 
-function normalizeBenchmarkName(name) {
+function normalizeBenchmarkName (name) {
   return name.replace(/ /g, '-')
 }
 
-function compareResults(results, benchFolder) {
+function compareResults (results, benchFolder) {
   const review = new MarkdownReview()
 
   for (const [key, value] of results.entries()) {
@@ -57,7 +57,7 @@ function compareResults(results, benchFolder) {
   return review
 }
 
-function storeResults(results, benchFolder) {
+function storeResults (results, benchFolder) {
   if (!fs.existsSync(benchFolder)) {
     log.logDebug(`Creating benchmark folder: '${benchFolder}'`)
     fs.mkdirSync(benchFolder)
@@ -68,7 +68,7 @@ function storeResults(results, benchFolder) {
   }
 }
 
-function storeReview(review) {
+function storeReview (review) {
   if (review.hasReview()) {
     fs.writeFileSync('./autobench-review.md', review.reviewMessage)
   } else {
@@ -76,18 +76,18 @@ function storeReview(review) {
   }
 }
 
-function validateConfig(cfg) {
+function validateConfig (cfg) {
   const validate = ajv.compile({
     type: 'object',
     properties: {
       name: {
-        type: 'string',
+        type: 'string'
       },
       url: {
-        type: 'string',
+        type: 'string'
       },
       benchFolder: {
-        type: 'string',
+        type: 'string'
       },
       benchmarks: {
         type: 'array',
@@ -99,7 +99,7 @@ function validateConfig(cfg) {
             },
             path: {
               type: 'string'
-            },
+            }
           },
           required: ['name', 'path']
         }
@@ -116,7 +116,7 @@ function validateConfig(cfg) {
   }
 }
 
-function parseConfig() {
+function parseConfig () {
   try {
     const cfg = yaml.load(fs.readFileSync('./autobench.yml'))
     if (!cfg.url) {
@@ -134,10 +134,10 @@ function parseConfig() {
   }
 }
 
-async function main() {
+async function main () {
   const args = process.argv.slice(2)
 
-  if (args.length !== 1) {
+  if (args.length < 1) {
     console.error('Usage: autobench [compare | create]')
     process.exit(127)
   }
@@ -149,7 +149,7 @@ async function main() {
 
   const config = parseConfig()
   const results = new Map()
-  for (let instanceCfg of config.benchmarks) {
+  for (const instanceCfg of config.benchmarks) {
     const result = await runBench({
       url: config.url + instanceCfg.path,
       connections: 10,
@@ -165,7 +165,10 @@ async function main() {
 
   if (args[0] === 'compare') {
     const review = compareResults(results, `${process.cwd()}/${config.benchFolder}`)
-    storeReview(review)
+    log.logInfo(review.reviewMessage)
+    if (args[1] === '-s') {
+      storeReview(review)
+    }
   }
 
   log.logInfo('Done!')
