@@ -137,7 +137,7 @@ function parseConfig () {
 async function main () {
   const args = process.argv.slice(2)
 
-  if (args.length !== 1) {
+  if (args.length < 1) {
     console.error('Usage: autobench [compare | create]')
     process.exit(127)
   }
@@ -165,7 +165,10 @@ async function main () {
 
   if (args[0] === 'compare') {
     const review = compareResults(results, `${process.cwd()}/${config.benchFolder}`)
-    storeReview(review)
+    log.logInfo(review.reviewMessage)
+    if (args[1] === '-s') {
+      storeReview(review)
+    }
   }
 
   log.logInfo('Done!')

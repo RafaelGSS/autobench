@@ -1,5 +1,5 @@
 name: 'Autobench Example'
-benchFolder: './bench'
+benchFolder: 'bench'
 url: 'http://localhost:3000'
 benchmarks:
   - name: 'request 1'
