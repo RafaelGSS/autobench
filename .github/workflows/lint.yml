@@ -11,14 +11,7 @@ jobs:
         with:
           node-version: '14.x'
 
-      - uses: actions/cache@v2.1.4
-        id: cache
-        with:
-          path: node_modules
-          key: ${{ runner.os }}-${{ hashFiles('yarn.lock') }}
-
       - name: Install deps
-        if: steps.cache.outputs.cache-hit != 'true'
         run: yarn install
 
       - name: Run lint syntax validation
