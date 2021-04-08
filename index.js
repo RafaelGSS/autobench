@@ -91,7 +91,7 @@ function validateConfig (cfg) {
       },
       connections: {
         type: 'number',
-        default: 10,
+        default: 10
       },
       pipelining: {
         type: 'number',
