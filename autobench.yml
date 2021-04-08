@@ -1,6 +1,9 @@
 name: 'Autobench Example'
 benchFolder: 'bench'
 url: 'http://localhost:3000'
+connections: 10
+pipelining: 1
+duration: 30
 benchmarks:
   - name: 'request 1'
     path: '/'

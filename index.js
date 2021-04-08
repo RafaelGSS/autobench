@@ -10,7 +10,7 @@ const fs = require('fs')
 const log = require('./logger')
 const { MarkdownReview } = require('./markdown-review')
 
-const ajv = new Ajv()
+const ajv = new Ajv({ useDefaults: true })
 
 function runBench (autocannonParams) {
   return new Promise((resolve, reject) => {
@@ -89,6 +89,18 @@ function validateConfig (cfg) {
       benchFolder: {
         type: 'string'
       },
+      connections: {
+        type: 'number',
+        default: 10,
+      },
+      pipelining: {
+        type: 'number',
+        default: 1
+      },
+      duration: {
+        type: 'number',
+        default: 30
+      },
       benchmarks: {
         type: 'array',
         items: {
@@ -105,7 +117,7 @@ function validateConfig (cfg) {
         }
       }
     },
-    required: ['name', 'benchmarks', 'benchFolder']
+    required: ['name', 'benchmarks', 'benchFolder', 'duration', 'pipelining', 'connections']
   })
 
   if (validate(cfg)) {
@@ -152,9 +164,9 @@ async function main () {
   for (const instanceCfg of config.benchmarks) {
     const result = await runBench({
       url: config.url + instanceCfg.path,
-      connections: 10,
-      pipelining: 1,
-      duration: 10
+      connections: config.connections,
+      pipelining: config.pipelining,
+      duration: config.duration
     })
     results.set(normalizeBenchmarkName(instanceCfg.name), result)
   }

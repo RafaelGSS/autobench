@@ -50,6 +50,12 @@ name: 'Autobench Example'
 benchFolder: 'bench'
 # Root URL to perform the benchmarking. [REQUIRED]
 url: 'http://localhost:3000'
+# Number of connections. See https://github.com/mcollina/autocannon to further explanation. [OPTIONAL]
+connections: 10
+# Number of pipelining. See https://github.com/mcollina/autocannon to further explanation. [OPTIONAL]
+pipelining: 1
+# Duration of benchmark. See https://github.com/mcollina/autocannon to further explanation. [OPTIONAL]
+duration: 30
 # Group of routes to perform benchmarking. [REQUIRED]
 benchmarks:
   # Benchmark route name. [REQUIRED]
