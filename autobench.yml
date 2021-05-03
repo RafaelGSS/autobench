@@ -7,7 +7,12 @@ duration: 30
 benchmarks:
   - name: 'request 1'
     path: '/'
-    method: 'GET'
+    method: 'POST'
+    headers:
+      Content-type: 'application/json'
+    body:
+      valid: true
+    idReplacement: true
 
   - name: 'request 2'
     path: '/slow'
