@@ -62,6 +62,8 @@ benchmarks:
   - name: 'request 1'
   # Route path. [REQUIRED]
     path: '/'
+  # Method [OPTIONAL] - Default `GET`
+    method: 'POST'
 
   - name: 'request 2'
     path: '/slow'

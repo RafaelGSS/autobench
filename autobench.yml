@@ -7,6 +7,8 @@ duration: 30
 benchmarks:
   - name: 'request 1'
     path: '/'
+    method: 'GET'
 
   - name: 'request 2'
     path: '/slow'
+    method: 'GET'

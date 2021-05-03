@@ -111,6 +111,10 @@ function validateConfig (cfg) {
             },
             path: {
               type: 'string'
+            },
+            method: {
+              type: 'string',
+              default: 'GET'
             }
           },
           required: ['name', 'path']
@@ -166,7 +170,8 @@ async function main () {
       url: config.url + instanceCfg.path,
       connections: config.connections,
       pipelining: config.pipelining,
-      duration: config.duration
+      duration: config.duration,
+      method: config.method
     })
     results.set(normalizeBenchmarkName(instanceCfg.name), result)
   }
