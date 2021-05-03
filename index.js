@@ -115,9 +115,19 @@ function validateConfig (cfg) {
             method: {
               type: 'string',
               default: 'GET'
+            },
+            headers: {
+              type: 'object'
+            },
+            body: {
+              type: 'object'
+            },
+            idReplacement: {
+              type: 'boolean',
+              default: false
             }
           },
-          required: ['name', 'path']
+          required: ['name', 'path', 'method']
         }
       }
     },
@@ -167,11 +177,19 @@ async function main () {
   const results = new Map()
   for (const instanceCfg of config.benchmarks) {
     const result = await runBench({
-      url: config.url + instanceCfg.path,
+      url: config.url,
       connections: config.connections,
       pipelining: config.pipelining,
       duration: config.duration,
-      method: config.method
+      requests: [
+        {
+          method: instanceCfg.method,
+          headers: instanceCfg.headers,
+          path: instanceCfg.path,
+          body: JSON.stringify(instanceCfg.body)
+        }
+      ],
+      idReplacement: instanceCfg.idReplacement
     })
     results.set(normalizeBenchmarkName(instanceCfg.name), result)
   }

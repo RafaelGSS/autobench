@@ -64,6 +64,15 @@ benchmarks:
     path: '/'
   # Method [OPTIONAL] - Default `GET`
     method: 'POST'
+  # Headers to request [OPTIONAL]
+    headers:
+      Content-type: 'application/json'
+  # Body to request [OPTIONAL] - It's automatically parsed to JSON object.
+    body:
+      example: 'true'
+      email: 'hey-[<id>]@example.com'
+  # [OPTIONAL] when this field is set as `true` the `[<id>]` is replaced with a generated HyperID at runtime
+    idReplacement: true
 
   - name: 'request 2'
     path: '/slow'
