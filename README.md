@@ -48,7 +48,7 @@ The config file parameters are described bellow:
 name: 'Autobench Example'
 # Benchmarking folder to store and retrieve benchmarks. [REQUIRED]
 benchFolder: 'bench'
-# Root URL to perform the benchmarking. [REQUIRED]
+# Root URL to perform the benchmarking. [REQUIRED] It could be sent by `AUTOBENCH_URL` environment variable
 url: 'http://localhost:3000'
 # Number of connections. See https://github.com/mcollina/autocannon to further explanation. [OPTIONAL]
 connections: 10
