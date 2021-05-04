@@ -131,7 +131,7 @@ function validateConfig (cfg) {
         }
       }
     },
-    required: ['name', 'benchmarks', 'benchFolder', 'duration', 'pipelining', 'connections']
+    required: ['name', 'url', 'benchmarks', 'benchFolder', 'duration', 'pipelining', 'connections']
   })
 
   if (validate(cfg)) {
@@ -150,6 +150,7 @@ function parseConfig () {
         log.logError('URL not provided. You should provide the `url` in autobench config or by AUTOBENCH_URL env variable.')
         process.exit(1)
       }
+      cfg.url = process.env.AUTOBENCH_URL
     }
 
     validateConfig(cfg)
@@ -176,7 +177,7 @@ async function main () {
   const config = parseConfig()
   const results = new Map()
   for (const instanceCfg of config.benchmarks) {
-    const result = await runBench({
+    const benchConfig = {
       url: config.url,
       connections: config.connections,
       pipelining: config.pipelining,
@@ -190,7 +191,9 @@ async function main () {
         }
       ],
       idReplacement: instanceCfg.idReplacement
-    })
+    }
+    log.logDebug(`Running ${instanceCfg.name} with config: ${JSON.stringify(benchConfig, null, 2)}`)
+    const result = await runBench(benchConfig)
     results.set(normalizeBenchmarkName(instanceCfg.name), result)
   }
 
